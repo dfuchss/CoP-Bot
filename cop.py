@@ -1,10 +1,11 @@
 from typing import Optional, List
 
-from telegram import Update, Bot, Message, User, MessageEntity
+from telegram import Update, Bot, Message, User, MessageEntity, ParseMode
 from telegram.ext import Updater, CommandHandler, CallbackContext, Handler, MessageHandler, Filters
 from os import environ
 
 # import logging
+
 # logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 #                    level=logging.DEBUG)
 
@@ -46,7 +47,7 @@ def current_user(method):
     def secured(update: Update, context: CallbackContext):
         msg: Message = update.message
         if challenge_from is not None and challenge_from != msg.from_user.id:
-            context.bot.send_message(msg.chat_id, f"You are not the current user")
+            context.bot.send_message(msg.chat_id, f"You are not the current user!")
             return
         method(update, context)
 
@@ -60,7 +61,7 @@ def private(method):
 
         msg_type: str = msg.chat.type  # 'private', 'group', 'supergroup' or 'channel'
         if msg_type != "private":
-            bot.send_message(msg.chat_id, f"command has to be executed in a private channel")
+            bot.send_message(msg.chat_id, f"The command has to be executed in a private channel!")
             return
 
         method(update, context)
@@ -71,19 +72,9 @@ def private(method):
 def start(update: Update, context: CallbackContext):
     msg: Message = update.message
     bot: Bot = context.bot
-    bot.send_message(msg.chat_id,
-                     """
-This is Challenge of Pic (CoP)
-You have the following commands:
-/help: This message here <----
-/state: Get the current state of the bot
-/add_admin [UserMentions]: promote users
-/remove_admin [UserMentions]: demote users 
-/admins: show all admins
-/listen: select the group channel for listening
-/new Word1,Word2, ... as caption of an image sent via a private channel: Create a new challenge you have to find all the words separated                          
-                     """.strip()
-                     )
+
+    with open("README.md") as readme:
+        bot.send_message(msg.chat_id, readme.read(), parse_mode=ParseMode.MARKDOWN)
 
 
 @secure
@@ -151,7 +142,7 @@ def new_challenge(update: Update, context: CallbackContext):
     challenge_from = msg.from_user.id
 
     if listen_to is None:
-        bot.send_message(msg.chat_id, "please set listen_to first.")
+        bot.send_message(msg.chat_id, "Please set listen_to first.")
         return
 
     if challenge is not None:
@@ -161,7 +152,7 @@ def new_challenge(update: Update, context: CallbackContext):
     txt: str = update.message.caption
     txt = txt[len('/new'):].strip()
     challenge = list(filter(lambda s: len(s) != 0, [x.lower().strip() for x in txt.split(",")]))
-    bot.send_photo(listen_to, msg.photo[0].file_id, caption=f"Your next challenge from {msg.from_user.first_name} ...")
+    bot.send_photo(listen_to, msg.photo[0].file_id, caption=f"Your next challenge from {msg.from_user.first_name} ... good luck :)")
 
 
 def answer(update: Update, context: CallbackContext):
