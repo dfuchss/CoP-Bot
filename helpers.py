@@ -33,7 +33,7 @@ def private(method):
 def current_user(method):
     def secured(update: Update, context: CallbackContext):
         msg: Message = update.message
-        if not state.challenge_from(msg.from_user):
+        if not state.is_challenge_from(msg.from_user):
             context.bot.send_message(msg.chat_id, f"You are not the current user!")
             return
         method(update, context)

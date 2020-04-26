@@ -51,12 +51,18 @@ class State:
             return
         text = text.lower()
 
-        for ch in self._challenge:
-            if ch.lower() not in text:
-                return
+        found = False
+        for group in self._challenge:
+            elements: [str] = [x.strip() for x in group.split(",")]
+            if all((e in text) for e in elements):
+                found = True
+                break
+
+        if not found:
+            return
 
         high = self._add_highscore(msg.from_user)
-        context.bot.send_message(msg.chat_id, f"{str(msg.from_user.first_name)} ({high}) got it: {', '.join(self._challenge)}")
+        context.bot.send_message(msg.chat_id, f"{str(msg.from_user.first_name)} ({high}) got it: {' or '.join(self._challenge)}")
 
         self._challenge = None
         self._challenge_from = msg.from_user.id
@@ -65,7 +71,7 @@ class State:
     def new_challenge(self, update: Update, context: CallbackContext):
         msg: Message = update.message
         bot: Bot = context.bot
-        if not state.challenge_from(msg.from_user):
+        if not state.is_challenge_from(msg.from_user):
             context.bot.send_message(msg.chat_id, f"You are not the current user!")
             return
         msg_type: str = msg.chat.type  # 'private', 'group', 'supergroup' or 'channel'
@@ -85,7 +91,7 @@ class State:
 
         txt: str = update.message.caption
         txt = txt[len('/new'):].strip()
-        self._challenge = list(filter(lambda s: len(s) != 0, [x.lower().strip() for x in txt.split(",")]))
+        self._challenge = list(filter(lambda s: len(s) != 0, [x.lower().strip() for x in txt.split(";")]))
         bot.send_photo(self._listen_to, msg.photo[0].file_id, caption=f"Your next challenge from {msg.from_user.first_name} ... good luck :)")
 
         self._store()
@@ -93,7 +99,7 @@ class State:
     def skip(self, update: Update, context: CallbackContext):
         msg: Message = update.message
 
-        if not self.challenge_from(msg.from_user) and not self.check_admin(msg.from_user):
+        if not self.is_challenge_from(msg.from_user) and not self.check_admin(msg.from_user):
             context.bot.send_message(msg.chat_id, f"You are not the current user!")
             return
 
@@ -102,13 +108,13 @@ class State:
             self._challenge_from = None
 
         else:
-            context.bot.send_message(msg.chat_id, f"No one got it: {', '.join(self._challenge)}")
+            context.bot.send_message(msg.chat_id, f"No one got it: {' or '.join(self._challenge)}")
             self._challenge = None
             self._challenge_from = None
 
         self._store()
 
-    def challenge_from(self, from_user: User):
+    def is_challenge_from(self, from_user: User):
         if self._challenge_from is None:
             return True
         if from_user is None:
@@ -138,7 +144,7 @@ class State:
                 self._listen_to = loaded["_listen_to"]
                 self._admins = loaded["_admins"]
                 self._highscore = loaded["_highscore"]
-        except Exception as e:
+        except Exception:
             logging.error("State could not be loaded!")
 
     def _add_highscore(self, from_user: User) -> str:
