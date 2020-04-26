@@ -16,7 +16,7 @@ class State:
         self._challenge_from: Optional[int] = None
         self._listen_to: Optional[int] = None
         self._admins: [str] = []
-        self._highscore: Dict[int, int] = {}
+        self._highscore: Dict[str, int] = {}
         self._load()
 
     def check_admin(self, user: User):
@@ -148,14 +148,15 @@ class State:
             logging.error("State could not be loaded!")
 
     def _add_highscore(self, from_user: User) -> str:
-        if from_user.id in self._highscore.keys():
-            hs = int(self._highscore[from_user.id])
+        key = str(from_user.id)
+        if key in self._highscore.keys():
+            hs = int(self._highscore[key])
             hs += 1
-            self._highscore[from_user.id] = hs
+            self._highscore[key] = hs
         else:
-            self._highscore[from_user.id] = 1
+            self._highscore[key] = 1
 
-        return f"Highscore: {self._highscore[from_user.id]}"
+        return f"Highscore: {self._highscore[key]}"
 
 
 state: State = State()
