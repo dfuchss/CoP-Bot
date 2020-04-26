@@ -113,7 +113,7 @@ class State:
             return True
         if from_user is None:
             return False
-        return self.challenge_from == from_user.id
+        return self._challenge_from == from_user.id
 
     def update_listen_to(self, chat_id):
         self._listen_to = chat_id
