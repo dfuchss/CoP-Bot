@@ -16,7 +16,7 @@ class State:
         self._challenge_from: Optional[int] = None
         self._listen_to: Optional[int] = None
         self._admins: [str] = []
-        self._highscore: Dict[str, int] = {}
+        self._highscore: Dict[int, int] = {}
         self._load()
 
     def check_admin(self, user: User):
