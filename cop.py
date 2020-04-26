@@ -4,10 +4,10 @@ from telegram import Update, Bot, Message, User, MessageEntity, ParseMode
 from telegram.ext import Updater, CommandHandler, CallbackContext, Handler, MessageHandler, Filters
 from os import environ
 
-import logging
+# import logging
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.DEBUG)
+# logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+#                    level=logging.DEBUG)
 
 from state import state
 from helpers import current_user, private, admin
