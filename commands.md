@@ -1,4 +1,5 @@
-# Challenge of Pic (Telegram Bot)
+Challenge of Pic (Telegram Bot)
+
 A simple "challenge of pictures bot". Your task is to guess the terms of a picture.
 
 ```
