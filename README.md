@@ -1,5 +1,12 @@
 # Challenge of Pic (Telegram Bot)
-A simple "challenge of pictures bot". Your task is to guess the terms of a picture.
+The bot helps with playing a simle picture challange with your friends over telegram.
+Someone starts by sending a picture and the word or phrase to guess. The other players
+have to guess the phrase and the first to do so will have the right to post a new challange.
+
+## Features
+- only the winning player can pose a new image challange
+- the active player can /skip their turn or stop the current challange
+- a highscore is tracked
 
 ## Commands (see [commands.md](commands.md))
 ## Requirements (Development):
