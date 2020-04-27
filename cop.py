@@ -68,8 +68,8 @@ def show_state(update: Update, context: CallbackContext):
 def listen_here(update: Update, context: CallbackContext):
     msg: Message = update.message
     bot: Bot = context.bot
-    state.update_listen_to(msg.chat_id)
-    bot.send_message(msg.chat_id, f"Now I'm listening here ..")
+    contains = state.update_listen_to(msg.chat_id)
+    bot.send_message(msg.chat_id, f"Now I'm listening here .." if contains else f"I'm not listening here anymore ..")
 
 
 class NewHandler(Handler):

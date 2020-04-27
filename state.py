@@ -1,5 +1,5 @@
 from os.path import exists
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Tuple
 from json import dumps, loads
 
 from telegram import User, Update, Message, Bot
@@ -14,9 +14,9 @@ class State:
         self._path = path
         self._challenge: Optional[List[str]] = None
         self._challenge_from: Optional[int] = None
-        self._listen_to: Optional[int] = None
+        self._listen_to: List[int] = []
         self._admins: [str] = []
-        self._highscore: Dict[str, int] = {}
+        self._highscore: Dict[str, Tuple[str, int]] = {}
         self._load()
 
     def check_admin(self, user: User):
@@ -43,7 +43,7 @@ class State:
     def check_answer(self, update: Update, context: CallbackContext):
         msg: Message = update.message
 
-        if msg is None or msg.chat_id != self._listen_to:
+        if msg is None or msg.chat_id not in self._listen_to:
             return
 
         text: str = msg.text
@@ -61,8 +61,16 @@ class State:
         if not found:
             return
 
+        if self.is_challenge_from(msg.from_user):
+            context.bot.send_message(msg.chat_id, f"You are the current user, this is not allowed! Reset.")
+            self._challenge = None
+            self._challenge_from = None
+            self._store()
+            return
+
         high = self._add_highscore(msg.from_user)
-        context.bot.send_message(msg.chat_id, f"{str(msg.from_user.first_name)} ({high}) got it: {' or '.join(self._challenge)}")
+        for cid in self._listen_to:
+            context.bot.send_message(cid, f"{str(msg.from_user.first_name)} ({high}) got it: {' or '.join(self._challenge)}")
 
         self._challenge = None
         self._challenge_from = msg.from_user.id
@@ -81,7 +89,7 @@ class State:
 
         self._challenge_from = msg.from_user.id
 
-        if self._listen_to is None:
+        if self._listen_to is None or len(self._listen_to) == 0:
             bot.send_message(msg.chat_id, "Please set listen_to first.")
             return
 
@@ -92,7 +100,8 @@ class State:
         txt: str = update.message.caption
         txt = txt[len('/new'):].strip()
         self._challenge = list(filter(lambda s: len(s) != 0, [x.lower().strip() for x in txt.split(";")]))
-        bot.send_photo(self._listen_to, msg.photo[0].file_id, caption=f"Your next challenge from {msg.from_user.first_name} ... good luck :)")
+        for cid in self._listen_to:
+            bot.send_photo(cid, msg.photo[0].file_id, caption=f"Your next challenge from {msg.from_user.first_name} ... good luck :)")
 
         self._store()
 
@@ -122,8 +131,12 @@ class State:
         return self._challenge_from == from_user.id
 
     def update_listen_to(self, chat_id):
-        self._listen_to = chat_id
+        if chat_id in self._listen_to:
+            self._listen_to.remove(chat_id)
+        else:
+            self._listen_to.append(chat_id)
         self._store()
+        return chat_id in self._listen_to
 
     def __repr__(self):
         return f"Current Challenge: {self._challenge} from {self._challenge_from}. Current Admins: [{', '.join(self._admins)}]"
@@ -150,13 +163,14 @@ class State:
     def _add_highscore(self, from_user: User) -> str:
         key = str(from_user.id)
         if key in self._highscore.keys():
-            hs = int(self._highscore[key])
-            hs += 1
-            self._highscore[key] = hs
-        else:
-            self._highscore[key] = 1
+            (name, hs) = self._highscore[key]
 
-        return f"Highscore: {self._highscore[key]}"
+            hs = int(hs) + 1
+            self._highscore[key] = (from_user.first_name, hs)
+        else:
+            self._highscore[key] = (from_user.first_name, 1)
+
+        return f"Highscore: {self._highscore[key][1]}"
 
 
 state: State = State()
