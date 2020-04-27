@@ -21,6 +21,12 @@ def start(update: Update, context: CallbackContext):
         bot.send_message(msg.chat_id, readme.read(), parse_mode=ParseMode.MARKDOWN)
 
 
+def highscore(update: Update, context: CallbackContext):
+    msg: Message = update.message
+    bot: Bot = context.bot
+    bot.send_message(msg.chat_id, state.get_hs())
+
+
 @admin
 def add_new_admin(update: Update, context: CallbackContext):
     msg: Message = update.message
@@ -101,6 +107,7 @@ def main():
 
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('help', start))
+    dp.add_handler(CommandHandler('highscore', highscore))
     dp.add_handler(CommandHandler('state', show_state))
     dp.add_handler(CommandHandler('add_admin', add_new_admin))
     dp.add_handler(CommandHandler('remove_admin', remove_admin))

@@ -138,6 +138,12 @@ class State:
         self._store()
         return chat_id in self._listen_to
 
+    def get_hs(self) -> str:
+        vals = list(self._highscore.values())
+        vals.sort(key=lambda v: v[1], reverse=True)
+        hs = "\n".join(map(lambda t: f"{t[0]}: {t[1]}", vals))
+        return hs
+
     def __repr__(self):
         return f"Current Challenge: {self._challenge} from {self._challenge_from}. Current Admins: [{', '.join(self._admins)}]"
 
