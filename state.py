@@ -11,6 +11,7 @@ import logging
 
 class State:
     def __init__(self, path="state.json"):
+        self.version = 1
         self._path = path
         self._challenge: Optional[List[str]] = None
         self._challenge_from: Optional[int] = None
@@ -157,14 +158,24 @@ class State:
         try:
             with open(self._path, encoding="utf-8-sig") as jsonfile:
                 loaded = loads(jsonfile.read())
-                self._path = loaded["_path"]
-                self._challenge = loaded["_challenge"]
-                self._challenge_from = loaded["_challenge_from"]
-                self._listen_to = loaded["_listen_to"]
-                self._admins = loaded["_admins"]
-                self._highscore = loaded["_highscore"]
+
+                if loaded["version"] == self.version:
+                    self._path = loaded["_path"]
+                    self._challenge = loaded["_challenge"]
+                    self._challenge_from = loaded["_challenge_from"]
+                    self._listen_to = loaded["_listen_to"]
+                    self._admins = loaded["_admins"]
+                    self._highscore = loaded["_highscore"]
+                else:
+                    self.__migrate(loaded)
         except Exception:
             logging.error("State could not be loaded!")
+
+    def __migrate(self, loaded):
+        if loaded["version"] is None:
+            logging.error("Migration not possible. No version found.")
+
+        logging.error("Migration not possible. No migration profile available")
 
     def _add_highscore(self, from_user: User) -> str:
         key = str(from_user.id)
