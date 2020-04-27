@@ -141,6 +141,7 @@ class State:
 
     def get_hs(self) -> str:
         vals = list(self._highscore.values())
+        vals.sort(key=lambda v: v[0], reverse=False)
         vals.sort(key=lambda v: v[1], reverse=True)
         hs = "\n".join(map(lambda t: f"{t[0]}: {t[1]}", vals))
         return hs
