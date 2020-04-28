@@ -7,6 +7,7 @@ from telegram.ext import CallbackContext
 
 from json_objects import convert_to_dict
 import logging
+from re import match
 
 
 class State:
@@ -55,7 +56,7 @@ class State:
         found = False
         for group in self._challenge:
             elements: [str] = [x.strip() for x in group.split(",")]
-            if all((e in text) for e in elements):
+            if all((match(f"\\b{e}\\b", text) is not None) for e in elements):
                 found = True
                 break
 
