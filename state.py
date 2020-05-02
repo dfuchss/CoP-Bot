@@ -107,6 +107,29 @@ class State:
 
         self._store()
 
+    def refine(self, update: Update, context: CallbackContext):
+        msg: Message = update.message
+        bot: Bot = context.bot
+        if not state.is_challenge_from(msg.from_user):
+            context.bot.send_message(msg.chat_id, f"You are not the current user!")
+            return
+        msg_type: str = msg.chat.type  # 'private', 'group', 'supergroup' or 'channel'
+        if msg_type != "private":
+            bot.send_message(msg.chat_id, f"The command has to be executed in a private channel!")
+            return
+
+        if self._challenge is None:
+            bot.send_message(msg.chat_id, f"You can't refine a challenge iff none exists!")
+            return
+
+        txt: str = msg.text
+        txt = txt[len('/refine'):].strip()
+        self._challenge = list(filter(lambda s: len(s) != 0, [x.lower().strip() for x in txt.split(";")]))
+        for cid in self._listen_to:
+            bot.send_message(cid, "The challenge has been refined. Please try your answers once again")
+
+        self._store()
+
     def skip(self, update: Update, context: CallbackContext):
         msg: Message = update.message
 

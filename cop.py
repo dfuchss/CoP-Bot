@@ -117,7 +117,7 @@ def main():
 
     dp.add_handler(NewHandler(state.new_challenge))
     dp.add_handler(CommandHandler('new', image_missing))
-
+    dp.add_handler(CommandHandler('refine', state.refine))
     dp.add_handler(CommandHandler('skip', state.skip))
 
     updater.start_polling()
