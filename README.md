@@ -19,13 +19,13 @@ You'll need the following two things:
 * The possibility to run a docker container
 * A Telegram Bot Account (set privacy mode to 'false' @ BotFather)
 
-Then simply run ``docker build -t cop-bot .`` to build a docker image of the bot.
+<!-- Then simply run ``docker build -t cop-bot .`` to build a docker image of the bot. -->
  
 To start the bot simply run:
 ```
 docker run -d \
     --env Token="Your Token" \
-cop-bot
+ghcr.io/dfuchss/copbot
  ```
 
 Optionally you can map the config for persistence:
@@ -33,6 +33,6 @@ Optionally you can map the config for persistence:
 docker run -d \
     --env Token="Your Token" \
     --mount type=bind,source=/path_to_existing/cop-state.json,target=/usr/src/app/state.json \
-cop-bot
+ghcr.io/dfuchss/copbot
  ```
 
