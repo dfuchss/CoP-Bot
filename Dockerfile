@@ -1,4 +1,4 @@
-FROM python:3.10.1
+FROM python:3.10.2
 
 ENV Token "The_Token"
 
